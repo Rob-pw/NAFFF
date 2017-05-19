@@ -26,6 +26,7 @@
     "webpack": "^2.5.1"
   },
   "dependencies": {
+    "event-emitter-es6": "github:rob-pw/event-emitter",
     "meld": "^1.3.2",
     "transceiver": "^0.3.4"
   }

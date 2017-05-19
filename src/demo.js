@@ -1,44 +1,21 @@
-import transceiver from 'transceiver';
 import meld from 'meld';
+import canals from './canal';
 
-const events = transceiver.channel('events');
+import nafff, { arm } from './nafff';
+nafff.configure(canals);
+
+const events = canals.select('events');
 const components = {};
 
-function record(...args) {
-  events.emit('foo', ...args);
-}
+// function record(...args) {
+//   canals.emit('foo', ...args);
+// }
 
-function evented(targetName) {
-  return (target) => {
-    components[targetName] = target;
-
-    const methodNames = Object.getOwnPropertyNames(target.prototype);
-
-    methodNames.forEach((methodName) => {
-      meld.before(target.prototype, methodName, (...args) => {
-        record(target, targetName, methodName, {
-          ...args
-        });
-      });
-    });
-
-    return class extends target {
-      constructor(...args) {
-        record(target, targetName, {
-          ...args
-        });
-
-        super();
-      }
-    };
-  };
-}
-
-events.on('foo', (...args) => {
+events.all((...args) => {
   console.info(...args);
 });
 
-@evented('TodoList')
+@arm('TodoList')
 class TodoList {
   items = [];
 
@@ -52,16 +29,20 @@ class TodoList {
   }
 }
 
-@evented('TodoItem')
+@arm('TodoItem')
 class TodoItem {
   edit(text) {
     this.value = text;
+  }
+
+  toString() {
+    return this.value;
   }
 }
 
 (() => {
   const todoList = new TodoList();
-  const todo = new TodoItem('Make this demo!');
+  // const todo = new TodoItem('Make this demo!');
 
-  todoList.add(todo);
+  todoList.add('Oh em gee?!');
 })();
